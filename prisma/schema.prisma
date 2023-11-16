@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider     = "cockroachdb"
+    url          = env("DATABASE_URL")
+    relationMode = "prisma"
+}
+
+model QuestionType {
+    questionTypeId String     @id @default(cuid())
+    questionType   String     @unique
+    questions      Question[]
+}
+
+model Form {
+    formId          String     @id @default(cuid())
+    formDescription String?
+    dateCreated     DateTime   @default(now())
+    formName        String
+    questions       Question[]
+}
+
+model Question {
+    questionId     String           @id @default(cuid())
+    questionNumber Int
+    question       String
+    questionType   QuestionType     @relation(fields: [questionTypeId], references: [questionTypeId])
+    questionTypeId String
+    questionOption QuestionOption[]
+    form           Form             @relation(fields: [formId], references: [formId])
+    formId         String
+    answer         String?
+
+    @@index([questionTypeId])
+    @@index([formId])
+}
+
+model QuestionOption {
+    questionOptionId String    @id @default(cuid())
+    questionOption   String
+    question         Question? @relation(fields: [questionId], references: [questionId])
+    questionId       String
+    isAnswer         Boolean   @default(false)
+
+    @@index([questionId])
+}
+
+// model QuestionOptionAnswer {
+//     questionOptionAnswerId String    @id @default(cuid())
+//     questionOption         QuestionOption? @relation(fields: [questionOptionId], references: [questionOptionId])
+//     questionOptionId       String
+
+//     @@index([questionOptionId])
+// }
+
+// model QuestionAnswer {
+//     questionAnswerId String    @id @default(cuid())
+//     questionAnswer   String?
+//     question         Question? @relation(fields: [questionId], references: [questionId])
+//     questionId       String
+
+//     @@index([questionId])
+// }
