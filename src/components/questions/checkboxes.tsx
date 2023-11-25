@@ -14,7 +14,6 @@ export default function Checkboxes({
   setQuestions: Dispatch<SetStateAction<Question[]>>;
   isAnswerable?: boolean;
 }) {
-  console.log(question);
   const inputRef = useRef<HTMLInputElement>(null);
   const [options, setOptions] = useState<QuestionOption[]>(
     question?.questionOption || [],
@@ -59,6 +58,7 @@ export default function Checkboxes({
         className="text-md my-3 w-full bg-transparent outline-none"
         placeholder="Question"
         ref={inputRef}
+        disabled={isAnswerable}
         onChange={(e) => {
           setQuestions((prev) =>
             prev.map((question) => {
@@ -82,7 +82,7 @@ export default function Checkboxes({
                 id={option.questionOptionId}
                 type="checkbox"
                 className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                checked={option.isAnswer}
+                checked={option?.isAnswer}
                 disabled={!isAnswerable}
               />
               <input
@@ -109,17 +109,19 @@ export default function Checkboxes({
               />
             </div>
           ))}
-          <div
-            className="cursor-pointer"
-            onClick={() => {
-              setOptions((prev: QuestionOption[]) => [
-                ...prev,
-                { questionOptionId: uuidv4(), questionOption: "Option" },
-              ]);
-            }}
-          >
-            <PlusCircleIcon width={20} height={20} />
-          </div>
+          {!isAnswerable && (
+            <div
+              className="cursor-pointer"
+              onClick={() => {
+                setOptions((prev: QuestionOption[]) => [
+                  ...prev,
+                  { questionOptionId: uuidv4(), questionOption: "Option" },
+                ]);
+              }}
+            >
+              <PlusCircleIcon width={20} height={20} />
+            </div>
+          )}
         </div>
       </fieldset>
     </div>

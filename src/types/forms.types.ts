@@ -39,9 +39,16 @@ export type Question = {
 export type QuestionOption = {
   questionOptionId: string;
   questionOption: string;
-  isAnswer?: boolean;
+  isAnswer?: boolean | false;
 };
 
 export type QuestionType = {
   questionType: string;
 };
+
+export type FormList = {
+  formId: string;
+  formName: string;
+  dateCreated: string;
+  formDescription: string;
+}

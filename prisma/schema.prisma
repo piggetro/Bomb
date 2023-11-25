@@ -23,6 +23,7 @@ model Form {
     dateCreated     DateTime   @default(now())
     formName        String
     questions       Question[]
+    answers         Answer[]
 }
 
 model Question {
@@ -34,7 +35,7 @@ model Question {
     questionOption QuestionOption[]
     form           Form             @relation(fields: [formId], references: [formId])
     formId         String
-    answer         String?
+    answerQuestion AnswerQuestion[]
 
     @@index([questionTypeId])
     @@index([formId])
@@ -45,8 +46,29 @@ model QuestionOption {
     questionOption   String
     question         Question? @relation(fields: [questionId], references: [questionId])
     questionId       String
-    isAnswer         Boolean   @default(false)
 
+    @@index([questionId])
+}
+
+model Answer {
+    answerId       String           @id @default(cuid())
+    form           Form             @relation(fields: [formId], references: [formId])
+    formId         String
+    answerQuestion AnswerQuestion[]
+
+    @@index([formId])
+}
+
+model AnswerQuestion {
+    answerQuestionId String    @id @default(cuid())
+    answer           Answer?   @relation(fields: [answerId], references: [answerId])
+    answerId         String
+    question         Question? @relation(fields: [questionId], references: [questionId])
+    questionId       String
+    answerText       String?
+    answerOptions    String[]  @default([])
+
+    @@index([answerId])
     @@index([questionId])
 }
 

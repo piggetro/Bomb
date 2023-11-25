@@ -24,12 +24,12 @@ export default function EditForm({
 
   const { data, isLoading } = api.form.getForm.useQuery({ formId });
 
-  const { mutate, isLoading: isPosting } = api.form.createForm.useMutation({
+  const { mutate, isLoading: isPosting } = api.form.updatedForm.useMutation({
     onSuccess: () => {
       toast.success("Form Updated", { id: toastId });
     },
     onError: (e) => {
-      toast.error("Something went wrong");
+      toast.error("Something went wrong", { id: toastId });
     },
   });
 
@@ -41,7 +41,7 @@ export default function EditForm({
 
   useEffect(() => {
     if (!isLoading && data) {
-      console.log(data.questions);
+      console.log(data.questions)
       setQuestions(data.questions);
       nameRef.current && (nameRef.current.value = data?.formName!);
       descriptionRef.current &&
@@ -65,12 +65,13 @@ export default function EditForm({
       return toast.error("Please enter a name");
     else if (questions.length === 0)
       return toast.error("Please add a question");
-
-    mutate({
-      formName: nameRef.current.value,
-      formDescription: descriptionRef.current?.value,
-      questions,
-    });
+    console.log(questions)
+    // mutate({
+    //   formId,
+    //   formName: nameRef.current.value,
+    //   formDescription: descriptionRef.current?.value,
+    //   questions,
+    // });
   };
 
   if (isLoading) {
@@ -93,7 +94,7 @@ export default function EditForm({
         <input
           ref={nameRef}
           placeholder="Form Name"
-          className="me-10 bg-transparent text-3xl font-bold outline-none"
+          className="me-2 bg-transparent text-3xl font-bold outline-none"
         />
         <Option onClick={addNewQuestion} />
         <button
@@ -102,7 +103,15 @@ export default function EditForm({
           type="button"
           className="mx-5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
         >
-          Save Form
+          Update Form
+        </button>
+        <button
+          onClick={() => router.push(`/preview/${formId}`)}
+          disabled={isPosting}
+          type="button"
+          className="mx-5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+        >
+          Preview Form
         </button>
         <input
           ref={descriptionRef}

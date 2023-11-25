@@ -29,7 +29,6 @@ export const formRouter = createTRPCRouter({
           z.object({
             question: z.string(),
             questionType: z.object({ questionType: z.string() }),
-            answer: z.string().optional(),
             questionNumber: z.number(),
             questionOption: z
               .array(
@@ -55,11 +54,10 @@ export const formRouter = createTRPCRouter({
       for (const questionData of questions) {
         const { question, questionType, questionNumber, questionOption } =
           questionData;
-
         const createdQuestion = await ctx.db.question.create({
           data: {
             questionNumber: questionNumber,
-            question,
+            question: question,
             questionType: {
               connectOrCreate: {
                 where: { questionType: questionType.questionType },
@@ -78,8 +76,91 @@ export const formRouter = createTRPCRouter({
             data: questionOption.map((option) => ({
               questionOption: option.questionOption,
               questionId: createdQuestion.questionId,
-              isAnswer: false,
             })),
+          });
+        }
+      }
+    }),
+  updatedForm: publicProcedure
+    .input(
+      z.object({
+        formId: z.string(),
+        formName: z.string(),
+        formDescription: z.string().optional(),
+        questions: z.array(
+          z.object({
+            question: z.string(),
+            questionId: z.string(),
+            questionType: z.object({ questionType: z.string() }),
+            questionNumber: z.number(),
+            questionOption: z
+              .array(
+                z.object({
+                  questionOptionId: z.string(),
+                  questionOption: z.string(),
+                }),
+              )
+              .optional(),
+          }),
+        ),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { formName, formDescription, questions } = input;
+      await ctx.db.form.update({
+        where: {
+          formId: input.formId,
+        },
+        data: {
+          formName,
+          formDescription,
+        },
+      });
+
+      for (const questionData of questions) {
+        const { question, questionType, questionId, questionNumber, questionOption } =
+          questionData;
+        await ctx.db.question.upsert({
+          where: {
+            questionId,
+          },
+          update: {
+            questionNumber: questionNumber,
+            question: question,
+          },
+          create: {
+            questionNumber: questionNumber,
+            question: question,
+            questionType: {
+              connectOrCreate: {
+                where: { questionType: questionType.questionType },
+                create: { questionType: questionType.questionType },
+              },
+            },
+            form: {
+              connect: {
+                formId: input.formId,
+              },
+            },
+          }
+        });
+        for (const option of questionOption!) {
+
+          await ctx.db.questionOption.upsert({
+            where: {
+              questionOptionId: option.questionOptionId,
+            },
+            update: {
+              questionOption: option.questionOption,
+            },
+            create: {
+              questionOption: option.questionOption,
+              question: {
+                connect: {
+                  questionId,
+                },
+              },
+            }
           });
         }
       }

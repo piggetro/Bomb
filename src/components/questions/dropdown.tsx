@@ -41,13 +41,14 @@ export default function Dropdown({
   useEffect(() => {
     inputRef.current &&
       (inputRef.current.value = question?.question || "Question");
-    if (!question?.questionOption) {
+    if (!question) {
       setOptions([
         {
           questionOptionId: uuidv4(),
           questionOption: "Option",
         },
       ]);
+      addOption();
     }
   }, []);
 
@@ -56,6 +57,7 @@ export default function Dropdown({
       <input
         className="text-md my-3 w-full bg-transparent outline-none"
         placeholder="Question"
+        disabled={isAnswerable}
         ref={inputRef}
         onChange={(e) => {
           setQuestions((prev) =>
@@ -114,7 +116,13 @@ export default function Dropdown({
           </div>
         </div>
       ) : (
-        <div>Answer</div>
+        <select>
+          {options.map((option) => (
+            <option value={option.questionOptionId}>
+              {option.questionOption}
+            </option>
+          ))}
+        </select>
       )}
     </div>
   );

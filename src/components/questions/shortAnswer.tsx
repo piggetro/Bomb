@@ -24,6 +24,7 @@ export default function ShortAnswer({
         className="text-md my-3 w-full bg-transparent outline-none"
         placeholder="Question"
         ref={inputRef}
+        disabled={isAnswerable}
         onChange={(e) => {
           setQuestions((prev) =>
             prev.map((question) => {
